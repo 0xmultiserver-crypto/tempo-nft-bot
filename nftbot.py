@@ -50,8 +50,11 @@ def check_phase():
         error_str = str(e)
         if "Not WL" in error_str:
             return False, "Still WL/GTD phase"
-        elif "Vault only owner" in error_str:
+        elif "Vault only" in error_str:
             return False, "Vault only - not public yet"
+        elif "Exceeds Public cap" in error_str:
+            # Public phase IS open, but cap reached - just wait for refill
+            return True, "Public open but cap reached - waiting for refill"
         else:
             # Other error - might be public but other issue
             return False, f"Other error: {error_str[:50]}"
@@ -98,7 +101,7 @@ def main():
     print("=" * 60)
     
     attempt = 0
-    phase_check_interval = 30  # Check phase every 30 seconds
+    phase_check_interval = 3  # Check phase every 3 seconds
     
     while True:
         attempt += 1
@@ -111,10 +114,10 @@ def main():
             print("\n🎉 PUBLIC PHASE IS OPEN! Executing mint...")
             
             # Try to mint
-            success, error, tx_hash = try_mint_tx(1)
+            success, error, tx_hash = try_mint_tx(3)
             
             if success:
-                print(f"\n🎉 SUCCESS! Minted 1 NFT!")
+                print(f"\n🎉 SUCCESS! Minted 3 NFTs!")
                 print(f"   Tx: https://explore.tempo.xyz/tx/{tx_hash}")
                 return
             else:
